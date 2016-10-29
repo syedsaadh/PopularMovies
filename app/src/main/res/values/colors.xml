@@ -3,4 +3,6 @@
     <color name="colorPrimary">#191820</color>
     <color name="colorPrimaryDark">#101015</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorToolbarText">#ea3c77</color>
+    <color name="imageOverlayBlue">#920d0e1e</color>
 </resources>

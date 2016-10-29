@@ -1,7 +1,10 @@
 package app.orion.com.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -54,22 +57,23 @@ public class MainFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MovieDetail mviDetail = moviesPosterAdapter.getItem(position);
-                String MY_TITLE = "title";
-                String MY_OVERVIEW = "overview";
-                String MY_POSTER_PATH = "poster_path";
-                String MY_RELEASE_DATE = "release_date";
-                String MY_RATING = "vote_average";
                 Intent i = new Intent(getActivity(),MovieDetailsActivity.class)
-                        .putExtra(MY_TITLE,mviDetail.getTitle())
-                        .putExtra(MY_OVERVIEW,mviDetail.getOverview())
-                        .putExtra(MY_POSTER_PATH,mviDetail.getUrl())
-                        .putExtra(MY_RELEASE_DATE,mviDetail.getReleaseDate())
-                        .putExtra(MY_RATING,mviDetail.getRating());
+                        .putExtra("movie_detail_parcelable",mviDetail);
                 startActivity(i);
             }
         });
         mListView.setAdapter(moviesPosterAdapter);
         return rootView;
+    }
+    private boolean isInternetAvailable(){
+        boolean isConnected = false;
+        ConnectivityManager cm =
+                (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
     }
     private void initialiseMovies(){
         FetchMovies fetchMoviesTask =new FetchMovies();
@@ -109,6 +113,7 @@ public class MainFragment extends Fragment {
             final String MY_POSTER_PATH = "poster_path";
             final String MY_RELEASE_DATE = "release_date";
             final String MY_RATING = "vote_average";
+            final String MOVIES_POSTER_BASE_URL ="https://image.tmdb.org/t/p/w500";
 
             JSONObject moviesJson = new JSONObject(moviesJsonStr);
             JSONArray moviesArray = moviesJson.getJSONArray(MY_RESULTS);
@@ -116,7 +121,7 @@ public class MainFragment extends Fragment {
                 JSONObject movieDetail = moviesArray.getJSONObject(i);
                 mDetails.add(new MovieDetail(
                         movieDetail.getString(MY_TITLE),
-                        "https://image.tmdb.org/t/p/w500"+movieDetail.getString(MY_POSTER_PATH),
+                        MOVIES_POSTER_BASE_URL + movieDetail.getString(MY_POSTER_PATH),
                         movieDetail.getString(MY_OVERVIEW),
                         movieDetail.getDouble(MY_RATING),
                         readableDateString(movieDetail.getString(MY_RELEASE_DATE))
@@ -137,17 +142,19 @@ public class MainFragment extends Fragment {
             String moviesJsonStr = null;
             String language ="en-US";
             String apiKey = BuildConfig.MOVIEDB_API_KEY;
+            String type = params[0];
+            Log.v(LOG_TAG,"Type  "+type);
             try{
-                final String MOVIES_API_URL = "https://api.themoviedb.org/3/discover/movie?";
+                final String MOVIES_API_URL = "https://api.themoviedb.org/3/movie/"+type+"?";
                 final String LANGUAGE_PARAM = "language";
-                final String SORT_ORDER_PARAM = "sort_by";
+               // final String SORT_ORDER_PARAM = "sort_by";
                 final String API_KEY_PARAM = "api_key";
                 Uri builtUri = Uri.parse(MOVIES_API_URL).buildUpon()
                         .appendQueryParameter(LANGUAGE_PARAM,language)
-                        .appendQueryParameter(SORT_ORDER_PARAM,params[0])
+                 //       .appendQueryParameter(SORT_ORDER_PARAM,params[0])
                         .appendQueryParameter(API_KEY_PARAM,apiKey)
                         .build();
-             //   Log.v(LOG_TAG,"Built Uri "+builtUri.toString());
+                Log.v(LOG_TAG,"Built Uri "+builtUri.toString());
                 URL url = new URL(builtUri.toString());
                 urlConnection =(HttpsURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -166,7 +173,7 @@ public class MainFragment extends Fragment {
                     moviesJsonStr = null;
                 }
                 moviesJsonStr = buffer.toString();
-            //    Log.v(LOG_TAG,"Movies Json Str =  "+moviesJsonStr.toString());
+                Log.v(LOG_TAG,"Movies Json Str =  "+moviesJsonStr.toString());
             }
             catch (IOException e){
                 Log.e(LOG_TAG,"Error"+e);
@@ -198,7 +205,7 @@ public class MainFragment extends Fragment {
             for (MovieDetail s : result)
             {
                 moviesPosterAdapter.add(s);
-           //     Log.v(LOG_TAG,"OnPost"+s.getTitle());
+                Log.v(LOG_TAG,"OnPost"+s.getTitle());
             }
 
         }
@@ -207,6 +214,11 @@ public class MainFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        initialiseMovies();
+        if(isInternetAvailable()==true) {
+            initialiseMovies();
+        }
+        else{
+            Toast.makeText(getActivity(),"Internet Connectivity Issue",Toast.LENGTH_SHORT).show();
+        }
     }
 }
