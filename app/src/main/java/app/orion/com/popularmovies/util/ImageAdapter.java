@@ -1,18 +1,21 @@
-package app.orion.com.popularmovies;
+package app.orion.com.popularmovies.util;
 
 import android.app.Activity;
 import android.content.Context;
-import android.view.LayoutInflater;
+import android.graphics.Point;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+
+import app.orion.com.popularmovies.model.MovieDetail;
 
 /**
  * Created by syedaamir on 28-10-2016.
@@ -42,27 +45,27 @@ public class ImageAdapter extends ArrayAdapter<MovieDetail> {
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View recycled, ViewGroup container) {
         final ImageView myImageView;
-        final int deviceWidth;
-        final  int deviceHeight;
-        deviceHeight = ((Activity)mContext).getWindowManager().getDefaultDisplay().getHeight();
-        deviceWidth = ((Activity)mContext).getWindowManager().getDefaultDisplay().getWidth();
-
+        Point size = new Point();
+        int deviceWidth,imageSizeX;
+        ((Activity)mContext).getWindowManager().getDefaultDisplay().getSize(size);
+        deviceWidth = size.x;
+        imageSizeX = deviceWidth/4;
+        if(deviceWidth/2 < 400){
+            imageSizeX = deviceWidth/2;
+        }
         if (recycled == null) {
             myImageView = new ImageView(mContext);
-            myImageView.setLayoutParams(new GridView.LayoutParams(deviceWidth/2,deviceHeight/2));
-            myImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         } else {
             myImageView = (ImageView) recycled;
         }
-
+        myImageView.setLayoutParams(new GridView.LayoutParams(imageSizeX, 500));
+        myImageView.setScaleType(ImageView.ScaleType.FIT_XY);
         MovieDetail movieDetail = details.get(position);
         Glide
                 .with(mContext)
-                .load(movieDetail.getUrl())
-                .centerCrop()
+                .load(movieDetail.getPosterUrl())
                 .crossFade()
                 .into(myImageView);
-
 
         return myImageView;
     }

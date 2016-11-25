@@ -1,8 +1,9 @@
-package app.orion.com.popularmovies;
+package app.orion.com.popularmovies.ui;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -16,9 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.GridLayout;
 import android.widget.GridView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -36,6 +36,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import app.orion.com.popularmovies.BuildConfig;
+import app.orion.com.popularmovies.R;
+import app.orion.com.popularmovies.model.MovieDetail;
+import app.orion.com.popularmovies.util.ImageAdapter;
 
 /**
  * Created by syedaamir on 28-10-2016.
@@ -62,9 +67,15 @@ public class MainFragment extends Fragment {
                 startActivity(i);
             }
         });
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mListView.setNumColumns(4);
+        }else{
+            mListView.setNumColumns(2);
+        }
         mListView.setAdapter(moviesPosterAdapter);
         return rootView;
     }
+
     private boolean isInternetAvailable(){
         boolean isConnected = false;
         ConnectivityManager cm =
@@ -84,6 +95,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     public class FetchMovies extends AsyncTask<String,Void,ArrayList<MovieDetail>>{
@@ -107,12 +119,15 @@ public class MainFragment extends Fragment {
         private ArrayList<MovieDetail> getMoviesDetailsFromJson(String moviesJsonStr) throws JSONException{
 
             final ArrayList<MovieDetail> mDetails = new ArrayList<>();
+            final String MY_ID = "id";
             final String MY_RESULTS = "results";
             final String MY_TITLE = "title";
             final String MY_OVERVIEW = "overview";
             final String MY_POSTER_PATH = "poster_path";
+            final String MY_BACKDROP_PATH = "backdrop_path";
             final String MY_RELEASE_DATE = "release_date";
             final String MY_RATING = "vote_average";
+            final String MY_VOTE_COUNT = "vote_count";
             final String MOVIES_POSTER_BASE_URL ="https://image.tmdb.org/t/p/w500";
 
             JSONObject moviesJson = new JSONObject(moviesJsonStr);
@@ -120,13 +135,16 @@ public class MainFragment extends Fragment {
             for(int i = 0; i < moviesArray.length(); i++) {
                 JSONObject movieDetail = moviesArray.getJSONObject(i);
                 mDetails.add(new MovieDetail(
+                        movieDetail.getLong(MY_ID),
                         movieDetail.getString(MY_TITLE),
                         MOVIES_POSTER_BASE_URL + movieDetail.getString(MY_POSTER_PATH),
+                        MOVIES_POSTER_BASE_URL + movieDetail.getString(MY_BACKDROP_PATH),
                         movieDetail.getString(MY_OVERVIEW),
                         movieDetail.getDouble(MY_RATING),
+                        movieDetail.getLong(MY_VOTE_COUNT),
                         readableDateString(movieDetail.getString(MY_RELEASE_DATE))
                 ));
-               // Log.v(LOG_TAG,"MovieDetailsR"+"https://image.tmdb.org/t/p/w500/"+movieDetail.getString(MY_POSTER_PATH));
+//                Log.v(LOG_TAG,"MovieDetailsR"+"https://image.tmdb.org/t/p/w500/"+movieDetail.getString(MY_POSTER_PATH));
             }
             return mDetails;
         }
@@ -213,12 +231,13 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onStart() {
-        super.onStart();
         if(isInternetAvailable()==true) {
             initialiseMovies();
         }
-        else{
+        else {
             Toast.makeText(getActivity(),"Internet Connectivity Issue",Toast.LENGTH_SHORT).show();
         }
+        super.onStart();
+
     }
 }

@@ -18,7 +18,6 @@
         <item name="android:padding">6dp</item>
         <item name="android:textSize">@dimen/details_rating_text_size</item>
         <item name="android:layout_alignParentRight">true</item>
-        <item name="android:layout_alignParentTop">true</item>
         <item name="android:textStyle">bold</item>
         <item name="android:gravity">center</item>
     </style>
@@ -34,5 +33,12 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textSize">@dimen/detail_text_size</item>
+    </style>
+    <style name="DetailTitleLandscape" parent="@android:style/TextAppearance.Medium">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:textSize">@dimen/detail_title_landscape_text_size</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 </resources>

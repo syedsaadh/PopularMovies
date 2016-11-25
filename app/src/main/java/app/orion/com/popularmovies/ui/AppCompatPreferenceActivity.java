@@ -1,4 +1,4 @@
-package app.orion.com.popularmovies;
+package app.orion.com.popularmovies.ui;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

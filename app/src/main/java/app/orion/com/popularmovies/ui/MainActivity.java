@@ -1,9 +1,7 @@
-package app.orion.com.popularmovies;
+package app.orion.com.popularmovies.ui;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,19 +9,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import app.orion.com.popularmovies.R;
 
+public class MainActivity extends AppCompatActivity {
+    private MainFragment mainFragment;
+    private final String MAIN_FRAGMENT_TAG = "main_fragment";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
+        if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MainFragment())
+                    .replace(R.id.container, new MainFragment(), MAIN_FRAGMENT_TAG)
                     .commit();
         }
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

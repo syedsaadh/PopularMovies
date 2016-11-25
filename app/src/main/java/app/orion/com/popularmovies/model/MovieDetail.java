@@ -1,4 +1,4 @@
-package app.orion.com.popularmovies;
+package app.orion.com.popularmovies.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,23 +8,38 @@ import android.os.Parcelable;
  */
 
 public class MovieDetail implements Parcelable {
+    public long mid;
     private String title;
-    private String url;
+    private String posterUrl;
+    private String backdropUrl;
     private String overview;
     private double rating;
     private String releaseDate;
+    private String trailerPath;
+    private int isFavourite;
+    private long voteCount;
 
-    public MovieDetail(String title, String url,String overview,double rating,String releaseDate){
+    public MovieDetail(long mid, String title, String posterUrl, String backdropUrl, String overview,double rating,long voteCount, String releaseDate){
         super();
+        this.mid = mid;
         this.title=title;
-        this.url=url;
+        this.posterUrl=posterUrl;
+        this.backdropUrl=backdropUrl;
         this.overview=overview;
         this.rating=rating;
+        this.voteCount =voteCount;
         this.releaseDate =releaseDate;
     }
 
-    public String getUrl() {
-        return url;
+    public long getMid() {
+        return mid;
+    }
+
+    public void setMid(long mid) {
+        this.mid = mid;
+    }
+    public String getPosterUrl() {
+        return posterUrl;
     }
 
     public String getTitle() {
@@ -43,6 +58,38 @@ public class MovieDetail implements Parcelable {
         return releaseDate;
     }
 
+    public String getBackdropUrl() {
+        return backdropUrl;
+    }
+
+    public long getVoteCount() {
+        return voteCount;
+    }
+
+    public void setVoteCount(long voteCount) {
+        this.voteCount = voteCount;
+    }
+
+    public void setBackdropUrl(String backdropUrl) {
+        this.backdropUrl = backdropUrl;
+    }
+
+    public int getIsFavourite() {
+        return isFavourite;
+    }
+
+    public String getTrailerPath() {
+        return trailerPath;
+    }
+
+    public void setIsFavourite(int isFavourite) {
+        this.isFavourite = isFavourite;
+    }
+
+    public void setTrailerPath(String trailerPath) {
+        this.trailerPath = trailerPath;
+    }
+
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
     }
@@ -59,15 +106,18 @@ public class MovieDetail implements Parcelable {
         this.overview = overview;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setPosterUrl(String url) {
+        this.posterUrl = posterUrl;
     }
 
     protected MovieDetail(Parcel in) {
+        mid = in.readLong();
         title = in.readString();
-        url = in.readString();
+        posterUrl = in.readString();
+        backdropUrl = in.readString();
         overview = in.readString();
         rating = in.readDouble();
+        voteCount = in.readLong();
         releaseDate = in.readString();
     }
 
@@ -78,10 +128,13 @@ public class MovieDetail implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mid);
         dest.writeString(title);
-        dest.writeString(url);
+        dest.writeString(posterUrl);
+        dest.writeString(backdropUrl);
         dest.writeString(overview);
         dest.writeDouble(rating);
+        dest.writeLong(voteCount);
         dest.writeString(releaseDate);
     }
 
