@@ -4,11 +4,13 @@
 
 
     <string name="pref_sort_by">Sort By</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_popular">Popular</string>
+    <string name="action_top_rated">Top Rating</string>
     <string name="pref_sort_by_popular_label">Popular</string>
     <string name="pref_sort_by_rating_label">Top Ratings</string>
     <string name="pref_sort_by_popular" translatable="false">popular</string>
     <string name="pref_sort_by_rating" translatable="false">top_rated</string>
     <string name="pref_sort_by_key" translatable="false">sort_by</string>
     <string name="synopsis">SYNOPSIS :</string>
+    <string name="thumbnail_directory_name">PopularMovies</string>
 </resources>

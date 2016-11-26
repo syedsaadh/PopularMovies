@@ -14,6 +14,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -56,6 +59,7 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main,container,false);
+        getActivity().setTitle("Popular Movies");
         moviesPosterAdapter = new ImageAdapter(getActivity(),R.layout.list_item_movies,R.id.poster_list_image_view,new ArrayList<MovieDetail>());
         GridView mListView = (GridView) rootView.findViewById(R.id.gridView);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -73,7 +77,38 @@ public class MainFragment extends Fragment {
             mListView.setNumColumns(2);
         }
         mListView.setAdapter(moviesPosterAdapter);
+        this.setHasOptionsMenu(true);
         return rootView;
+    }
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.main, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_popular) {
+            initialiseMovies("popular");
+            return true;
+        }else if(id == R.id.action_top_ratings){
+            initialiseMovies("top_rated");
+            return true;
+        }else if ( id == R.id.action_watchlist){
+            Fragment favouriteMoviesFragment = new FavouritesMovieFragment();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container,favouriteMoviesFragment)
+                    .addToBackStack(null)
+                    .commit();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private boolean isInternetAvailable(){
@@ -86,10 +121,10 @@ public class MainFragment extends Fragment {
                 activeNetwork.isConnectedOrConnecting();
         return isConnected;
     }
-    private void initialiseMovies(){
+    private void initialiseMovies(String sortBy){
         FetchMovies fetchMoviesTask =new FetchMovies();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String sortBy = sharedPreferences.getString(getString(R.string.pref_sort_by_key),getString(R.string.pref_sort_by_popular));
+//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        String sortBy = sharedPreferences.getString(getString(R.string.pref_sort_by_key),getString(R.string.pref_sort_by_popular));
         fetchMoviesTask.execute(sortBy);
     }
     @Override
@@ -220,6 +255,7 @@ public class MainFragment extends Fragment {
         }
         @Override
         protected void onPostExecute(ArrayList<MovieDetail> result) {
+            moviesPosterAdapter.clear();
             for (MovieDetail s : result)
             {
                 moviesPosterAdapter.add(s);
@@ -232,7 +268,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onStart() {
         if(isInternetAvailable()==true) {
-            initialiseMovies();
+            initialiseMovies("popular");
         }
         else {
             Toast.makeText(getActivity(),"Internet Connectivity Issue",Toast.LENGTH_SHORT).show();

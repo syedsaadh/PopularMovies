@@ -2,7 +2,9 @@ package app.orion.com.popularmovies.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,13 +63,23 @@ public class ImageAdapter extends ArrayAdapter<MovieDetail> {
         myImageView.setLayoutParams(new GridView.LayoutParams(imageSizeX, 500));
         myImageView.setScaleType(ImageView.ScaleType.FIT_XY);
         MovieDetail movieDetail = details.get(position);
-        Glide
-                .with(mContext)
-                .load(movieDetail.getPosterUrl())
-                .crossFade()
-                .into(myImageView);
 
+        MovieDetilsStorageHelper movieDetilsStorageHelper = new MovieDetilsStorageHelper(mContext);
+        Uri mThumb = movieDetilsStorageHelper.getBitmapFromDir(movieDetail.getPosterName(movieDetail.getPosterUrl()));
+        if(mThumb != null){
+            Glide
+                    .with(mContext)
+                    .load(mThumb)
+                    .crossFade()
+                    .into(myImageView);
+            Log.d("IMAGEADAPTER","  mdaadssasd");
+        }else {
+            Glide
+                    .with(mContext)
+                    .load(movieDetail.getPosterUrl())
+                    .crossFade()
+                    .into(myImageView);
+        }
         return myImageView;
     }
-
 }

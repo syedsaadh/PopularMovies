@@ -15,9 +15,12 @@ public class MovieDetail implements Parcelable {
     private String overview;
     private double rating;
     private String releaseDate;
-    private String trailerPath;
+    private String trailerPath = null;
     private int isFavourite;
     private long voteCount;
+    private String posterName;
+    private String backdropName;
+    private String movie_base_url ="https://image.tmdb.org/t/p/w500/";
 
     public MovieDetail(long mid, String title, String posterUrl, String backdropUrl, String overview,double rating,long voteCount, String releaseDate){
         super();
@@ -90,6 +93,16 @@ public class MovieDetail implements Parcelable {
         this.trailerPath = trailerPath;
     }
 
+    public String getBackdropName(String backdropUrl) {
+        this.backdropName = backdropUrl.replace(movie_base_url,"");
+        return backdropName;
+    }
+
+    public String getPosterName(String posterUrl) {
+        this.posterName = posterUrl.replace(movie_base_url,"");
+        return posterName;
+    }
+
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
     }
@@ -119,6 +132,7 @@ public class MovieDetail implements Parcelable {
         rating = in.readDouble();
         voteCount = in.readLong();
         releaseDate = in.readString();
+        trailerPath = in.readString();
     }
 
     @Override
@@ -136,6 +150,7 @@ public class MovieDetail implements Parcelable {
         dest.writeDouble(rating);
         dest.writeLong(voteCount);
         dest.writeString(releaseDate);
+        dest.writeString(trailerPath);
     }
 
     @SuppressWarnings("unused")
