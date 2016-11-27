@@ -19,7 +19,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.Toast;
@@ -44,17 +46,23 @@ import app.orion.com.popularmovies.BuildConfig;
 import app.orion.com.popularmovies.R;
 import app.orion.com.popularmovies.model.MovieDetail;
 import app.orion.com.popularmovies.util.ImageAdapter;
+import app.orion.com.popularmovies.util.NetworkUtillity;
 
 /**
  * Created by syedaamir on 28-10-2016.
  */
 
 public class MainFragment extends Fragment {
+
+    private final String MY_CONSTANT_SORT_POPULAR = "popular";
+    private final String MY_CONSTANT_TOP_RATED = "top_rated";
+    private final String MY_CONSTANT_PREF_KEY = "filter_by";
+    private static int DETAILS_PAGE_NUMBER = 1;
+    private SharedPreferences sharedPreferences;
     public ImageAdapter moviesPosterAdapter;
     public MainFragment(){
 
     }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -77,13 +85,41 @@ public class MainFragment extends Fragment {
             mListView.setNumColumns(2);
         }
         mListView.setAdapter(moviesPosterAdapter);
+        final View loadMore = rootView.findViewById(R.id.load_more_btn);
+        mListView.setOnScrollListener( new GridView.OnScrollListener() {
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+
+                if (firstVisibleItem + visibleItemCount == totalItemCount) {
+
+                    // last item in grid is on the screen, show footer:
+                    loadMore.setVisibility(View.VISIBLE);
+
+                } else if (loadMore.getVisibility() != View.GONE) {
+
+                    // last item in grid not on the screen, hide footer:
+                    loadMore.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+        });
+        loadMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addMoreMovies();
+            }
+        });
         this.setHasOptionsMenu(true);
         return rootView;
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.main, menu);
+        inflater.inflate(R.menu.sub_menu, menu);
     }
 
     @Override
@@ -92,13 +128,14 @@ public class MainFragment extends Fragment {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_popular) {
-            initialiseMovies("popular");
+            sharedPreferences.edit().putString(MY_CONSTANT_PREF_KEY,MY_CONSTANT_SORT_POPULAR).commit();
+            initialiseMovies();
             return true;
         }else if(id == R.id.action_top_ratings){
-            initialiseMovies("top_rated");
+            sharedPreferences.edit().putString(MY_CONSTANT_PREF_KEY,MY_CONSTANT_TOP_RATED).commit();
+            initialiseMovies();
             return true;
         }else if ( id == R.id.action_watchlist){
             Fragment favouriteMoviesFragment = new FavouritesMovieFragment();
@@ -111,25 +148,24 @@ public class MainFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean isInternetAvailable(){
-        boolean isConnected = false;
-        ConnectivityManager cm =
-                (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        isConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-        return isConnected;
-    }
-    private void initialiseMovies(String sortBy){
+    private void initialiseMovies(){
+        DETAILS_PAGE_NUMBER = 1;
         FetchMovies fetchMoviesTask =new FetchMovies();
-//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        String sortBy = sharedPreferences.getString(getString(R.string.pref_sort_by_key),getString(R.string.pref_sort_by_popular));
-        fetchMoviesTask.execute(sortBy);
+        String sortBy = sharedPreferences.getString(MY_CONSTANT_PREF_KEY , MY_CONSTANT_SORT_POPULAR);
+        moviesPosterAdapter.clear();
+        fetchMoviesTask.execute(sortBy,String.valueOf(DETAILS_PAGE_NUMBER));
+    }
+    private void addMoreMovies(){
+        DETAILS_PAGE_NUMBER ++;
+        FetchMovies fetchMoviesTask =new FetchMovies();
+        String sortBy = sharedPreferences.getString(MY_CONSTANT_PREF_KEY , MY_CONSTANT_SORT_POPULAR);
+        fetchMoviesTask.execute(sortBy, String.valueOf(DETAILS_PAGE_NUMBER));
     }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sharedPreferences = getContext().getSharedPreferences("app.orion.com.popularmovies", Context.MODE_PRIVATE);
         setRetainInstance(true);
     }
 
@@ -200,11 +236,12 @@ public class MainFragment extends Fragment {
             try{
                 final String MOVIES_API_URL = "https://api.themoviedb.org/3/movie/"+type+"?";
                 final String LANGUAGE_PARAM = "language";
+                final String PAGE_PARAM = "page";
                // final String SORT_ORDER_PARAM = "sort_by";
                 final String API_KEY_PARAM = "api_key";
                 Uri builtUri = Uri.parse(MOVIES_API_URL).buildUpon()
                         .appendQueryParameter(LANGUAGE_PARAM,language)
-                 //       .appendQueryParameter(SORT_ORDER_PARAM,params[0])
+                        .appendQueryParameter(PAGE_PARAM,params[1])
                         .appendQueryParameter(API_KEY_PARAM,apiKey)
                         .build();
                 Log.v(LOG_TAG,"Built Uri "+builtUri.toString());
@@ -255,7 +292,6 @@ public class MainFragment extends Fragment {
         }
         @Override
         protected void onPostExecute(ArrayList<MovieDetail> result) {
-            moviesPosterAdapter.clear();
             for (MovieDetail s : result)
             {
                 moviesPosterAdapter.add(s);
@@ -267,13 +303,16 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onStart() {
-        if(isInternetAvailable()==true) {
-            initialiseMovies("popular");
+        NetworkUtillity networkUtillity = new NetworkUtillity(getContext());
+        if(networkUtillity.isInternetAvailable()== true) {
+            initialiseMovies();
         }
         else {
-            Toast.makeText(getActivity(),"Internet Connectivity Issue",Toast.LENGTH_SHORT).show();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new NetworkErrorFragment())
+                    .commit();
+            networkUtillity.showError();
         }
         super.onStart();
-
     }
 }

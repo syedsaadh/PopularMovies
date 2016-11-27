@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -31,6 +32,7 @@ import app.orion.com.popularmovies.BuildConfig;
 import app.orion.com.popularmovies.R;
 import app.orion.com.popularmovies.model.MovieDetail;
 import app.orion.com.popularmovies.model.Reviews;
+import app.orion.com.popularmovies.util.NetworkUtillity;
 import app.orion.com.popularmovies.util.ReviewListAdapter;
 
 /**
@@ -41,6 +43,7 @@ public class MovieReviewsFragment extends Fragment {
     final ArrayList<Reviews> mReviews = new ArrayList();
     private View rootView;
     private long movieId ;
+    private NetworkUtillity networkUtillity;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -51,25 +54,29 @@ public class MovieReviewsFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_reviews, container, false);
         Bundle bundle = this.getArguments();
         if (bundle != null) {
-             movieId = bundle.getLong("movie_id", 0);
+            movieId = bundle.getLong("movie_id", 0);
         }
-        Log.v(LOG_TAG, "Movie Id " + movieId);
-
+        reviewListCreate(movieId);
         return rootView;
     }
-
     @Override
-    public void onResume() {
-        super.onResume();
-        reviewListCreate(movieId);
-
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        networkUtillity = new NetworkUtillity(getContext());
     }
+
     private void initialiseList(){
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.review_list);
-        mLayoutManager = new LinearLayoutManager(getContext());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new ReviewListAdapter(getContext(),mReviews);
-        mRecyclerView.setAdapter(mAdapter);
+        if(mReviews.isEmpty()){
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new EmptyErrorFragment())
+                    .commit();
+        }else {
+            mRecyclerView = (RecyclerView) rootView.findViewById(R.id.review_list);
+            mLayoutManager = new LinearLayoutManager(getContext());
+            mRecyclerView.setLayoutManager(mLayoutManager);
+            mAdapter = new ReviewListAdapter(getContext(), mReviews);
+            mRecyclerView.setAdapter(mAdapter);
+        }
     }
     private void reviewListCreate(long movieId){
         String API_KEY_PARAM = "api_key";
@@ -116,6 +123,13 @@ public class MovieReviewsFragment extends Fragment {
                         error.printStackTrace();
                     }
                 });
-        Volley.newRequestQueue(getContext()).add(jsonRequest);
+        if(networkUtillity.isInternetAvailable()){
+            Volley.newRequestQueue(getContext()).add(jsonRequest);
+        }else{
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new NetworkErrorFragment())
+                    .commit();
+            networkUtillity.showError();
+        }
     }
 }

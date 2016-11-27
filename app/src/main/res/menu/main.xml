@@ -1,16 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".ui.MainActivity">
-    <item android:title="Sort By">
-        <menu>
-            <item android:id="@+id/action_popular"
-                android:title="@string/action_popular"
-                app:showAsAction="never" />
-            <item android:id="@+id/action_top_ratings"
-                android:title="@string/action_top_rated"
-                app:showAsAction="never" />
-        </menu>
-    </item>
 
     <item android:id="@+id/action_watchlist" android:title="Watchlist"
         android:icon="@drawable/ic_favorite_black_24dp"

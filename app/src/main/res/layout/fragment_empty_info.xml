@@ -10,27 +10,28 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true">
         <ImageView
-            android:id="@+id/plug_img"
+            android:id="@+id/info_img"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/ic_cloud_off_black_24dp"
+            android:src="@drawable/ic_mood_bad_black_24dp"
             android:tint="#8f8f8f" />
         <TextView
-            android:id="@+id/plug_text"
-            android:layout_below="@id/plug_img"
+            android:id="@+id/info_text"
+            android:layout_below="@id/info_img"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lost Connection"
+            android:textAlignment="center"
+            android:text="It seems empty here.."
             android:textSize="18sp"
             android:layout_centerHorizontal="true"
             android:textColor="#838383"/>
         <Button
-            android:id="@+id/retry_btn"
-            android:layout_below="@id/plug_text"
+            android:id="@+id/action_btn"
+            android:layout_below="@id/info_text"
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
-            android:text="RETRY"/>
+            android:text="Go back"/>
     </LinearLayout>
 </RelativeLayout>

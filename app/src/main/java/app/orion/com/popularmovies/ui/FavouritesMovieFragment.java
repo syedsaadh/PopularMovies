@@ -35,7 +35,6 @@ public class FavouritesMovieFragment extends Fragment {
         getActivity().setTitle("WatchList");
         movieDbHelper = new MovieDbHelper(getContext());
         movieDetailoArrayList = new ArrayList<>();
-        movieDetailoArrayList = movieDbHelper.readMovieDetailsFromDb();
         moviesPosterAdapter = new ImageAdapter(getActivity(),R.layout.list_item_movies,R.id.poster_list_image_view,movieDetailoArrayList);
         GridView mListView = (GridView) rootView.findViewById(R.id.gridView);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -58,10 +57,13 @@ public class FavouritesMovieFragment extends Fragment {
     public void initialise(){
         moviesPosterAdapter.clear();
         movieDetailoArrayList = movieDbHelper.readMovieDetailsFromDb();
-        if(movieDetailoArrayList.isEmpty()){
-
+        if(movieDetailoArrayList == null){
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new EmptyErrorFragment())
+                    .commit();
+        }else{
+            moviesPosterAdapter.addAll(movieDetailoArrayList);
         }
-        moviesPosterAdapter.addAll(movieDetailoArrayList);
     }
     @Override
     public void onResume() {

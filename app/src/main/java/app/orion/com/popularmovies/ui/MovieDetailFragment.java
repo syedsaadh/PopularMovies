@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -38,6 +39,7 @@ import app.orion.com.popularmovies.data.MovieDbHelper;
 import app.orion.com.popularmovies.model.MovieDetail;
 import app.orion.com.popularmovies.model.Reviews;
 import app.orion.com.popularmovies.util.MovieDetilsStorageHelper;
+import app.orion.com.popularmovies.util.NetworkUtillity;
 
 /**
  * Created by syedaamir on 23-11-2016.
@@ -47,6 +49,7 @@ public class MovieDetailFragment extends Fragment {
     final ArrayList<Reviews> mReviews = new ArrayList();
     private MovieDetail movieDetail;
     private Reviews movieReviews;
+    private NetworkUtillity networkUtillity;
     static long movieId;
     private static int isFavourite;
     private View rootView;
@@ -56,6 +59,7 @@ public class MovieDetailFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent i = getActivity().getIntent();
+        networkUtillity = new NetworkUtillity(getContext());
         movieDetail = (MovieDetail) i.getParcelableExtra("movie_detail_parcelable");
         isFavourite = checkMovieIsFavourite(movieDetail.getMid());
         Log.d(LOG_TAG," is Favourite Value " + isFavourite);
@@ -106,7 +110,7 @@ public class MovieDetailFragment extends Fragment {
                 Fragment movieReviewsFragment = new MovieReviewsFragment();
                 movieReviewsFragment.setArguments(bundle);
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container,movieReviewsFragment)
+                        .replace(R.id.container, movieReviewsFragment)
                         .addToBackStack(null)
                         .commit();
             }
@@ -133,10 +137,12 @@ public class MovieDetailFragment extends Fragment {
     private void toggleFavourite(){
 
         if(isFavourite == 1){
+            Toast.makeText(getContext() ,movieDetail.getTitle() + " removed from Watchlist and Offline Access",Toast.LENGTH_SHORT).show();
             favouriteBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
             unsetFavourite(movieId);
             isFavourite = 0;
         }else {
+            Toast.makeText(getContext() ,movieDetail.getTitle() + " Added to Watchlist and Offline Access",Toast.LENGTH_SHORT).show();
             favouriteBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
             new MovieDbHelper(getContext()).saveMovieDetailsToDb(movieDetail);
             new MovieDetilsStorageHelper(getContext()).addBitmapToDir(movieDetail.getPosterName(movieDetail.getPosterUrl()),movieDetail.getPosterUrl());
@@ -229,7 +235,11 @@ public class MovieDetailFragment extends Fragment {
                         error.printStackTrace();
                     }
                 });
-        Volley.newRequestQueue(getContext()).add(jsonRequest);
+        if(networkUtillity.isInternetAvailable()){
+            Volley.newRequestQueue(getContext()).add(jsonRequest);
+        }else{
+            networkUtillity.showError();
+        }
     }
     private void getTrailerUrl(long movieId){
         String API_KEY_PARAM = "api_key";
@@ -269,6 +279,10 @@ public class MovieDetailFragment extends Fragment {
                         error.printStackTrace();
                     }
                 });
-        Volley.newRequestQueue(getContext()).add(jsonRequest);
+        if(networkUtillity.isInternetAvailable()){
+            Volley.newRequestQueue(getContext()).add(jsonRequest);
+        }else{
+            networkUtillity.showError();
+        }
     }
 }
