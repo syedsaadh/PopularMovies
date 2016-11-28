@@ -30,6 +30,7 @@ import java.util.ArrayList;
 
 import app.orion.com.popularmovies.BuildConfig;
 import app.orion.com.popularmovies.R;
+import app.orion.com.popularmovies.data.MovieDbHelper;
 import app.orion.com.popularmovies.model.MovieDetail;
 import app.orion.com.popularmovies.model.Reviews;
 import app.orion.com.popularmovies.util.NetworkUtillity;
@@ -40,7 +41,7 @@ import app.orion.com.popularmovies.util.ReviewListAdapter;
  */
 
 public class MovieReviewsFragment extends Fragment {
-    final ArrayList<Reviews> mReviews = new ArrayList();
+    private ArrayList<Reviews> mReviews = new ArrayList();
     private View rootView;
     private long movieId ;
     private NetworkUtillity networkUtillity;
@@ -56,7 +57,21 @@ public class MovieReviewsFragment extends Fragment {
         if (bundle != null) {
             movieId = bundle.getLong("movie_id", 0);
         }
-        reviewListCreate(movieId);
+
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.review_list);
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        MovieDbHelper movieDbHelper = new MovieDbHelper(getContext());
+        mReviews = movieDbHelper.readMovieReviewsFromDb(movieId);
+        if(mReviews == null){
+            mReviews = new ArrayList<Reviews>();
+            reviewListCreate(movieId);
+        }else{
+            mAdapter = new ReviewListAdapter(getContext(),mReviews);
+            mRecyclerView.setAdapter(mAdapter);
+        }
+
         return rootView;
     }
     @Override
@@ -70,11 +85,8 @@ public class MovieReviewsFragment extends Fragment {
             getActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, new EmptyErrorFragment())
                     .commit();
-        }else {
-            mRecyclerView = (RecyclerView) rootView.findViewById(R.id.review_list);
-            mLayoutManager = new LinearLayoutManager(getContext());
-            mRecyclerView.setLayoutManager(mLayoutManager);
-            mAdapter = new ReviewListAdapter(getContext(), mReviews);
+        }else{
+            mAdapter = new ReviewListAdapter(getContext(),mReviews);
             mRecyclerView.setAdapter(mAdapter);
         }
     }
@@ -84,10 +96,7 @@ public class MovieReviewsFragment extends Fragment {
         String type = "reviews";
         String REVIEW_API_BASE_URL = "https://api.themoviedb.org/3/movie/";
 
-        //"https://api.themoviedb.org/3/movie/278/reviews?api_key=fe648f558044e8957058c969649b379a";
-
-
-        final String REVIEW_API_URL =REVIEW_API_BASE_URL + movieId + "/" + type + "?";
+       final String REVIEW_API_URL =REVIEW_API_BASE_URL + movieId + "/" + type + "?";
         final String MY_AUTHOR = "author";
         final String MY_CONTENT = "content";
 

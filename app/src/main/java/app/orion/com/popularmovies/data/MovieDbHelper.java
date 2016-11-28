@@ -101,7 +101,7 @@ public class MovieDbHelper extends SQLiteOpenHelper{
         if (cursor.moveToFirst()){
             reviewsArrayList = new ArrayList<>();
             do {
-                Reviews model = new Reviews(cursor.getString(1),cursor.getString(2));
+                Reviews model = new Reviews(cursor.getString(2),cursor.getString(3));
                 reviewsArrayList.add(model);
             }while (cursor.moveToNext());
         }

@@ -13,4 +13,5 @@
     <string name="pref_sort_by_key" translatable="false">sort_by</string>
     <string name="synopsis">SYNOPSIS :</string>
     <string name="thumbnail_directory_name">PopularMovies</string>
+    <string name="check_reviews">Check Reviews</string>
 </resources>

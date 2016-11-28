@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +25,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.GridView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -60,6 +63,7 @@ public class MainFragment extends Fragment {
     private static int DETAILS_PAGE_NUMBER = 1;
     private SharedPreferences sharedPreferences;
     public ImageAdapter moviesPosterAdapter;
+    private LinearLayout progressBar;
     public MainFragment(){
 
     }
@@ -68,6 +72,7 @@ public class MainFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main,container,false);
         getActivity().setTitle("Popular Movies");
+        progressBar = (LinearLayout) rootView.findViewById(R.id.moviesAddProgress);
         moviesPosterAdapter = new ImageAdapter(getActivity(),R.layout.list_item_movies,R.id.poster_list_image_view,new ArrayList<MovieDetail>());
         GridView mListView = (GridView) rootView.findViewById(R.id.gridView);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -154,13 +159,29 @@ public class MainFragment extends Fragment {
         FetchMovies fetchMoviesTask =new FetchMovies();
         String sortBy = sharedPreferences.getString(MY_CONSTANT_PREF_KEY , MY_CONSTANT_SORT_POPULAR);
         moviesPosterAdapter.clear();
-        fetchMoviesTask.execute(sortBy,String.valueOf(DETAILS_PAGE_NUMBER));
+        NetworkUtillity networkUtillity = new NetworkUtillity(getContext());
+        if(networkUtillity.isInternetAvailable()== true) {
+            fetchMoviesTask.execute(sortBy,String.valueOf(DETAILS_PAGE_NUMBER));
+        }
+        else {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, new NetworkErrorFragment())
+                    .commit();
+            networkUtillity.showError();
+        }
+
     }
     private void addMoreMovies(){
         DETAILS_PAGE_NUMBER ++;
         FetchMovies fetchMoviesTask =new FetchMovies();
         String sortBy = sharedPreferences.getString(MY_CONSTANT_PREF_KEY , MY_CONSTANT_SORT_POPULAR);
-        fetchMoviesTask.execute(sortBy, String.valueOf(DETAILS_PAGE_NUMBER));
+        NetworkUtillity networkUtillity = new NetworkUtillity(getContext());
+        if(networkUtillity.isInternetAvailable()== true) {
+            fetchMoviesTask.execute(sortBy,String.valueOf(DETAILS_PAGE_NUMBER));
+        }
+        else {
+            networkUtillity.showError();
+        }
     }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -290,8 +311,16 @@ public class MainFragment extends Fragment {
             }
             return null;
         }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
         @Override
         protected void onPostExecute(ArrayList<MovieDetail> result) {
+            progressBar.setVisibility(View.GONE);
             for (MovieDetail s : result)
             {
                 moviesPosterAdapter.add(s);
@@ -303,16 +332,7 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onStart() {
-        NetworkUtillity networkUtillity = new NetworkUtillity(getContext());
-        if(networkUtillity.isInternetAvailable()== true) {
-            initialiseMovies();
-        }
-        else {
-            getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, new NetworkErrorFragment())
-                    .commit();
-            networkUtillity.showError();
-        }
+        initialiseMovies();
         super.onStart();
     }
 }

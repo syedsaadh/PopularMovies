@@ -1,13 +1,10 @@
 package app.orion.com.popularmovies.ui;
 
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -29,7 +26,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import app.orion.com.popularmovies.BuildConfig;
@@ -55,6 +51,8 @@ public class MovieDetailFragment extends Fragment {
     private View rootView;
     private String LOG_TAG = MovieDetailFragment.class.getSimpleName();
     private ImageView favouriteBtn;
+    private int idFav,idUnFav;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,7 +99,7 @@ public class MovieDetailFragment extends Fragment {
             }
         }
 
-        TextView checkReview = (TextView) rootView.findViewById(R.id.movie_reviews_btn);
+        TextView checkReview = (TextView) rootView.findViewById(R.id.movie_reviews_text_view);
         checkReview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,10 +119,12 @@ public class MovieDetailFragment extends Fragment {
           trailerSet(movieDetail.getTrailerPath());
         }
         favouriteBtn = (ImageView)rootView.findViewById(R.id.movie_favourite);
+        idFav = getResources().getIdentifier("ic_favorite_black_24dp" , "drawable" , getActivity().getPackageName());
+        idUnFav = getResources().getIdentifier("ic_favorite_border_black_24dp" , "drawable" , getActivity().getPackageName());
         if(isFavourite == 1){
-            favouriteBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
+            favouriteBtn.setImageResource(idFav);
         }else{
-            favouriteBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
+            favouriteBtn.setImageResource(idUnFav);
         }
         favouriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,12 +138,12 @@ public class MovieDetailFragment extends Fragment {
 
         if(isFavourite == 1){
             Toast.makeText(getContext() ,movieDetail.getTitle() + " removed from Watchlist and Offline Access",Toast.LENGTH_SHORT).show();
-            favouriteBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_black_24dp));
+            favouriteBtn.setImageResource(idUnFav);
             unsetFavourite(movieId);
             isFavourite = 0;
         }else {
             Toast.makeText(getContext() ,movieDetail.getTitle() + " Added to Watchlist and Offline Access",Toast.LENGTH_SHORT).show();
-            favouriteBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_black_24dp));
+            favouriteBtn.setImageResource(idFav);
             new MovieDbHelper(getContext()).saveMovieDetailsToDb(movieDetail);
             new MovieDetilsStorageHelper(getContext()).addBitmapToDir(movieDetail.getPosterName(movieDetail.getPosterUrl()),movieDetail.getPosterUrl());
             new MovieDetilsStorageHelper(getContext()).addBitmapToDir(movieDetail.getBackdropName(movieDetail.getBackdropUrl()),movieDetail.getBackdropUrl());

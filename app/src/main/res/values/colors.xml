@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorToolbarText">#ea3c77</color>
     <color name="imageOverlayBlue">#920d0e1e</color>
+    <color name="detailTextMovieHighlight">#797979</color>
 </resources>

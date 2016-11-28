@@ -41,4 +41,23 @@
         <item name="android:textSize">@dimen/detail_title_landscape_text_size</item>
         <item name="android:textAllCaps">true</item>
     </style>
+    <style name="LoadMoreTextView" parent="@android:style/TextAppearance.Medium">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@color/colorAccent</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:text">Load More</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:visibility">gone</item>
+    </style>
+    <style name="DetailTextMovieHighlights" parent="@android:style/TextAppearance.Medium">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/detailTextMovieHighlight</item>
+    </style>
 </resources>
