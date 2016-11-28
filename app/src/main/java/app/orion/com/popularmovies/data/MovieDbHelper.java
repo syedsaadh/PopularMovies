@@ -141,16 +141,4 @@ public class MovieDbHelper extends SQLiteOpenHelper{
         db.close();
         return movieDetailArrayList;
     }
-    private void readDb(String tbName){
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = " SELECT * FROM " + tbName;
-        Cursor cursor = db.rawQuery(query,null);
-        if (cursor.moveToFirst()){
-            do{
-                Log.d(tbName + " 1st ",cursor.getInt(0)+" 2nd :  "+ cursor.getString(1) +" 3rd  "+ cursor.getString(2)  );
-            }while (cursor.moveToNext());
-            Log.d(tbName , " ==========================");
-        }
-    }
-
 }

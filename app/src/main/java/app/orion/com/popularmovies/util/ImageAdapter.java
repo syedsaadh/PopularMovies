@@ -72,7 +72,6 @@ public class ImageAdapter extends ArrayAdapter<MovieDetail> {
                     .load(mThumb)
                     .crossFade()
                     .into(myImageView);
-            Log.d("IMAGEADAPTER","  mdaadssasd");
         }else {
             Glide
                     .with(mContext)

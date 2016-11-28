@@ -253,7 +253,7 @@ public class MainFragment extends Fragment {
             String language ="en-US";
             String apiKey = BuildConfig.MOVIEDB_API_KEY;
             String type = params[0];
-            Log.v(LOG_TAG,"Type  "+type);
+//            Log.v(LOG_TAG,"Type  "+type);
             try{
                 final String MOVIES_API_URL = "https://api.themoviedb.org/3/movie/"+type+"?";
                 final String LANGUAGE_PARAM = "language";
@@ -265,7 +265,7 @@ public class MainFragment extends Fragment {
                         .appendQueryParameter(PAGE_PARAM,params[1])
                         .appendQueryParameter(API_KEY_PARAM,apiKey)
                         .build();
-                Log.v(LOG_TAG,"Built Uri "+builtUri.toString());
+//                Log.v(LOG_TAG,"Built Uri "+builtUri.toString());
                 URL url = new URL(builtUri.toString());
                 urlConnection =(HttpsURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -284,7 +284,7 @@ public class MainFragment extends Fragment {
                     moviesJsonStr = null;
                 }
                 moviesJsonStr = buffer.toString();
-                Log.v(LOG_TAG,"Movies Json Str =  "+moviesJsonStr.toString());
+//                Log.v(LOG_TAG,"Movies Json Str =  "+moviesJsonStr.toString());
             }
             catch (IOException e){
                 Log.e(LOG_TAG,"Error"+e);
@@ -324,7 +324,7 @@ public class MainFragment extends Fragment {
             for (MovieDetail s : result)
             {
                 moviesPosterAdapter.add(s);
-                Log.v(LOG_TAG,"OnPost"+s.getTitle());
+//                Log.v(LOG_TAG,"OnPost"+s.getTitle());
             }
 
         }

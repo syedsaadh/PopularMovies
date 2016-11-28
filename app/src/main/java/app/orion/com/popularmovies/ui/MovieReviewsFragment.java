@@ -110,16 +110,17 @@ public class MovieReviewsFragment extends Fragment {
                     public void onResponse(JSONObject response) {
                         // the response is already constructed as a JSONObject!
                         try {
-                            Log.v(MovieReviewsFragment.class.getSimpleName()," JSON RESPONSE " + response.toString());
+//                            Log.v(MovieReviewsFragment.class.getSimpleName()," JSON RESPONSE " + response.toString());
                             JSONArray results = response.getJSONArray("results");
-                            Log.v(MovieReviewsFragment.class.getSimpleName()," JSON RESPONSE LENGTH" + results.length());
+//                            Log.v(MovieReviewsFragment.class.getSimpleName()," JSON RESPONSE LENGTH" + results.length());
                             for(int i = 0; i < results.length(); i++) {
                                 JSONObject reviewDetail = results.getJSONObject(i);
                                 mReviews.add(new Reviews(
                                         reviewDetail.getString(MY_AUTHOR),
                                         reviewDetail.getString(MY_CONTENT)
                                 ));
-                            } Log.v(MovieReviewsFragment.class.getSimpleName()," MREVIEW" + mReviews.size());
+                            }
+//                            Log.v(MovieReviewsFragment.class.getSimpleName()," MREVIEW" + mReviews.size());
                             initialiseList();
                         } catch (JSONException e) {
                             e.printStackTrace();
