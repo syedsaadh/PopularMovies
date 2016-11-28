@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:text="It seems empty here.."
+            android:text="@string/it_seems_empty_here"
             android:textSize="18sp"
             android:layout_centerHorizontal="true"
             android:textColor="#838383"/>
@@ -33,6 +33,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
-            android:text="Go back"/>
+            android:text="@string/go_back"/>
     </LinearLayout>
 </RelativeLayout>
