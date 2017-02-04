@@ -2,7 +2,6 @@
 This app helps you to find the popular movies you need to add to your watchlist. Also the detail, trailer and reviews of the movie can be easily accesible.
 
 ## Screenshots
-![Alt text](/Screenshots/Screen.jpeg?raw=true "Screen")
 ![Alt text](/Screenshots/Screen1.jpeg?raw=true "Screen")
 ![Alt text](/Screenshots/Screen2.jpeg?raw=true "Screen")
 ![Alt text](/Screenshots/Screen3.jpeg?raw=true "Screen")
